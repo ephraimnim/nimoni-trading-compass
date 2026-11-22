@@ -1,318 +1,478 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b1220">
-<title>Nimoni Trading Compass</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090909">
+<title>NIMONI Trading Discipline Tracker</title>
 <style>
-:root{--bg:#0b1220;--panel:#121d2d;--panel2:#19283b;--text:#edf4f7;--muted:#91a2b7;--mint:#8df0c5;--red:#ff7777;--border:#29394e}
-*{box-sizing:border-box}
-body{margin:0;padding:16px;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
-main{max-width:900px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-h1{font-size:23px;margin:0 0 6px}
-h2{font-size:17px;margin:0 0 14px}
-h3{font-size:13px;color:var(--muted);margin:18px 0 10px}
-p{color:var(--muted);line-height:1.5}
-small,.muted{color:var(--muted)}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:17px;margin-bottom:15px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:14px 0}
-.stat{background:var(--panel2);border-radius:10px;padding:12px;min-width:0}
-.stat strong{display:block;font-size:20px;margin-top:8px;overflow-wrap:anywhere}
-label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
-input,select,textarea{width:100%;background:#0b1626;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:11px;font:inherit}
-textarea{min-height:75px}
-.field{margin-bottom:12px}
-button{background:var(--mint);color:#092018;border:0;border-radius:8px;padding:11px 14px;font-weight:bold;cursor:pointer}
-button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
-button.danger{background:#49252b;color:#ffdede}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.progress{height:9px;background:#29394e;border-radius:20px;overflow:hidden;margin:10px 0}
-.progress span{display:block;height:100%;background:var(--mint);width:0}
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.checks label{display:flex;gap:9px;align-items:flex-start;color:var(--text);line-height:1.4}
-.checks input{width:auto;margin-top:2px;accent-color:var(--mint)}
-.trade{border-top:1px solid var(--border);padding:12px 0;display:flex;justify-content:space-between;gap:10px}
-.positive{color:var(--mint)}.negative{color:var(--red)}
-@media(max-width:580px){.stats{grid-template-columns:1fr 1fr}.grid,.checks{grid-template-columns:1fr}body{padding:11px}.panel{padding:13px}}
+:root {
+  color-scheme: dark;
+  --bg:#090909; --panel:#151515; --text:#f5f5f5;
+  --muted:#999; --line:#292929; --green:#16c784;
+  --red:#ea4d5a; --blue:#4388ff; --button:#222;
+}
+body.light {
+  color-scheme:light;
+  --bg:#f4f5f7; --panel:#fff; --text:#171717;
+  --muted:#666; --line:#dedede; --green:#079b65;
+  --red:#d93646; --blue:#2468db; --button:#eee;
+}
+* {box-sizing:border-box}
+body {
+  margin:0; padding:18px 14px 35px;
+  background:var(--bg); color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  transition:background .2s,color .2s;
+}
+.container {max-width:620px;margin:auto}
+header {margin-bottom:22px}
+h1 {font-size:23px;letter-spacing:1px;margin:0 0 7px}
+.subtitle {font-size:13px;color:var(--muted)}
+.section {
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:15px; padding:17px; margin:14px 0;
+}
+.section h2 {font-size:16px;margin:0 0 15px}
+.topline {display:flex;justify-content:space-between;align-items:center;gap:10px}
+.theme-buttons,.phase-buttons {display:flex;gap:7px;flex-wrap:wrap}
+button {
+  border:1px solid var(--line); background:var(--button);
+  color:var(--text); padding:11px 13px; border-radius:10px;
+  font-size:13px; font-weight:600; cursor:pointer;
+  touch-action:manipulation;
+}
+button:active {transform:scale(.97)}
+button.selected {border-color:var(--blue);background:var(--blue);color:white}
+button:disabled {opacity:.4;cursor:not-allowed}
+.phase-buttons button {flex:1}
+.balance-label {font-size:12px;color:var(--muted);margin-top:18px}
+.balance {font-size:32px;font-weight:800;margin:5px 0 15px}
+.stats {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat {background:var(--button);padding:12px;border-radius:10px}
+.stat small {display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
+.stat strong {font-size:17px}
+.progress-track {height:9px;background:var(--button);border-radius:20px;overflow:hidden;margin:12px 0 7px}
+.progress-fill {height:100%;width:0;background:var(--green);border-radius:20px;transition:width .2s}
+.progress-text {font-size:12px;color:var(--muted)}
+.trade-buttons {display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.trade-buttons button {padding:17px 5px;font-size:14px}
+.win {background:var(--green);color:#071a12;border-color:var(--green)}
+.loss {background:var(--red);color:white;border-color:var(--red)}
+.be {background:var(--button)}
+.notice {font-size:12px;color:var(--muted);line-height:1.5;margin:12px 0 0}
+.limits {display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.limit {padding:12px 8px;border-radius:10px;background:var(--button);text-align:center}
+.limit small {display:block;color:var(--muted);font-size:10px;margin-bottom:7px}
+.limit strong {font-size:14px}
+.good {color:var(--green)} .bad {color:var(--red)}
+.check-group {margin:15px 0}
+.check-title {font-size:13px;font-weight:bold;margin-bottom:9px}
+.choice-row {display:flex;gap:8px;flex-wrap:wrap}
+.choice-row button {flex:1;min-width:90px}
+.choice-row button.green-choice.selected {background:var(--green);border-color:var(--green);color:#071a12}
+.choice-row button.red-choice.selected {background:var(--red);border-color:var(--red);color:white}
+.choice-row button.blue-choice.selected {background:var(--blue);border-color:var(--blue);color:white}
+.history-item {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:12px 0;border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+.history-item:last-child {border-bottom:0}
+.history-item small {display:block;color:var(--muted);margin-top:5px}
+.empty {color:var(--muted);font-size:13px;text-align:center;padding:15px 0}
+.reminder {
+  text-align:center;line-height:1.7;font-size:13px;
+  color:var(--muted);padding:18px 10px;
+}
+input {
+  width:100%;padding:11px;border-radius:9px;
+  border:1px solid var(--line);background:var(--button);
+  color:var(--text);font-size:14px;margin:7px 0 12px;
+}
+.settings-label {font-size:12px;color:var(--muted)}
+.status {font-size:12px;margin-top:12px;color:var(--muted)}
+@media(max-width:380px) {
+  body {padding:14px 10px}
+  .section {padding:14px}
+  .balance {font-size:28px}
+  .trade-buttons button {font-size:12px}
+}
 </style>
 </head>
 <body>
-<main>
+<div class="container">
+
 <header>
- <div>
-  <h1>NIMONI <span style="color:var(--mint)">TRADING COMPASS</span></h1>
-  <small>Trade with a plan. Protect your account. Stay disciplined.</small>
- </div>
- <select id="phase" style="width:auto">
-  <option value="1">Phase 1</option>
-  <option value="2">Phase 2</option>
- </select>
+  <div class="topline">
+    <div>
+      <h1>NIMONI</h1>
+      <div class="subtitle">Trading Discipline Tracker</div>
+    </div>
+    <div class="theme-buttons">
+      <button id="darkBtn" onclick="setTheme('dark')">Dark</button>
+      <button id="lightBtn" onclick="setTheme('light')">Light</button>
+      <button id="systemBtn" onclick="setTheme('system')">System</button>
+    </div>
+  </div>
 </header>
 
-<section class="panel">
- <h2>Challenge progress</h2>
- <div class="grid">
-  <div><label>Starting balance ($)</label><input id="start" type="number" step="0.01"></div>
-  <div><label>Target balance ($)</label><input id="target" type="number" step="0.01"></div>
- </div>
- <div class="stats">
-  <div class="stat"><small>Current balance</small><strong id="balance">$0</strong></div>
-  <div class="stat"><small>Net P/L</small><strong id="net">$0</strong></div>
-  <div class="stat"><small>Remaining target</small><strong id="remaining">$0</strong></div>
-  <div class="stat"><small>Progress</small><strong id="percent">0%</strong></div>
- </div>
- <div class="progress"><span id="bar"></span></div>
- <small id="progressText"></small>
- <button class="secondary" id="saveSettings">Save phase settings</button>
-</section>
-
-<section class="panel">
- <h2>Daily guardrails</h2>
- <div class="stats">
-  <div class="stat"><small>Profit stop</small><strong class="positive" id="dailyWin">$50</strong></div>
-  <div class="stat"><small>Loss stop</small><strong class="negative" id="dailyLoss">-$25</strong></div>
- </div>
- <div class="grid">
-  <div><label>Daily profit limit ($)</label><input id="winLimit" type="number"></div>
-  <div><label>Daily loss limit ($)</label><input id="lossLimit" type="number"></div>
- </div>
- <button class="secondary" id="saveLimits">Save daily limits</button>
- <p id="dailyStatus"></p>
- <small>Personal limits only. Always follow your prop firm's official drawdown rules too.</small>
-</section>
-
-<section class="panel">
- <h2>Trade checklist</h2>
- <p>Complete your analysis before entering. This score measures checklist completion, not the probability of winning.</p>
- <h3>Higher timeframe — 4H / 1D</h3>
- <div class="checks" id="htf">
-  <label><input type="checkbox"> Direction is clear</label>
-  <label><input type="checkbox"> Market structure supports my bias</label>
-  <label><input type="checkbox"> Important liquidity levels marked</label>
- </div>
- <h3>Point of interest — 1H</h3>
- <div class="checks" id="poi">
-  <label><input type="checkbox"> Order block identified</label>
-  <label><input type="checkbox"> Fair value gap identified</label>
-  <label><input type="checkbox"> Liquidity sweep or relevant level</label>
-  <label><input type="checkbox"> POI aligns with higher timeframe</label>
- </div>
- <h3>Entry confirmation — 15M</h3>
- <div class="checks" id="entryChecks">
-  <label><input type="checkbox"> Liquidity sweep confirmed</label>
-  <label><input type="checkbox"> CHOCH / MSS confirmed</label>
-  <label><input type="checkbox"> Displacement or entry confirmation</label>
-  <label><input type="checkbox"> Entry, stop loss and target planned</label>
- </div>
- <div class="progress"><span id="checkBar"></span></div>
- <strong id="checkScore">0 of 11 completed</strong>
- <p id="checkMessage">No confirmation, no trade.</p>
- <button class="secondary" id="resetChecks">Reset checklist</button>
-</section>
-
-<section class="panel">
- <h2>Log your trading day</h2>
- <div class="grid">
-  <div class="field"><label>Date</label><input id="date" type="date"></div>
-  <div class="field"><label>Instrument</label><input id="instrument" placeholder="e.g. XAUUSD"></div>
-  <div class="field"><label>Direction</label><select id="direction"><option>Buy</option><option>Sell</option></select></div>
-  <div class="field"><label>Outcome</label>
-   <select id="outcome">
-    <option value="WIN">WIN</option>
-    <option value="LOSS">LOSS</option>
-    <option value="BREAKEVEN">BREAKEVEN</option>
-    <option value="NO TRADE">NO TRADE</option>
-   </select>
+<section class="section">
+  <h2>Challenge Mode</h2>
+  <div class="phase-buttons">
+    <button id="phase1Btn" onclick="setPhase(1)">Phase 1</button>
+    <button id="phase2Btn" onclick="setPhase(2)">Phase 2</button>
   </div>
-  <div class="field"><label>Profit / loss ($)</label><input id="result" type="number" step="0.01" placeholder="50 or -25"></div>
-  <div class="field"><label>Risk ($)</label><input id="risk" type="number" step="0.01"></div>
-  <div class="field"><label>Entry price</label><input id="entry" type="number" step="any"></div>
-  <div class="field"><label>Stop loss</label><input id="sl" type="number" step="any"></div>
-  <div class="field"><label>Take profit</label><input id="tp" type="number" step="any"></div>
-  <div class="field"><label>HTF bias</label>
-   <select id="bias"><option>Bullish</option><option>Bearish</option><option>Ranging</option><option>Unclear</option></select>
+
+  <div class="balance-label">CURRENT ACCOUNT BALANCE</div>
+  <div class="balance" id="balance">$4,988.00</div>
+
+  <div class="stats">
+    <div class="stat">
+      <small>CHALLENGE TARGET</small>
+      <strong id="target">$5,400</strong>
+    </div>
+    <div class="stat">
+      <small>REMAINING TARGET</small>
+      <strong id="remaining">$412</strong>
+    </div>
   </div>
- </div>
- <div class="field"><label>POI / setup</label><input id="setup" placeholder="e.g. 1H order block + FVG"></div>
- <div class="field"><label>15M confirmation</label><input id="confirmation" placeholder="e.g. Sweep + CHOCH + displacement"></div>
- <div class="field"><label>Notes — what did you learn?</label><textarea id="notes" placeholder="Did you follow your rules? What can improve?"></textarea></div>
- <button id="addTrade">Save trading record</button>
- <p id="formMessage"></p>
+
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div class="progress-text" id="progressText">0% completed</div>
+  <p class="notice" id="phaseNote">Phase 1 target: $5,400.</p>
 </section>
 
-<section class="panel">
- <h2>Trading statistics</h2>
- <div class="stats">
-  <div class="stat"><small>Wins</small><strong id="wins">0</strong></div>
-  <div class="stat"><small>Losses</small><strong id="losses">0</strong></div>
-  <div class="stat"><small>Breakeven</small><strong id="bes">0</strong></div>
-  <div class="stat"><small>No trade days</small><strong id="noTrades">0</strong></div>
- </div>
- <div class="stat"><small>Win rate</small><strong id="winRate">0%</strong></div>
+<section class="section">
+  <h2>Record a Completed Trade</h2>
+  <div class="trade-buttons">
+    <button class="win" onclick="recordTrade('WIN')">WIN<br>+$50</button>
+    <button class="loss" onclick="recordTrade('LOSS')">LOSS<br>−$25</button>
+    <button class="be" onclick="recordTrade('BREAKEVEN')">BREAKEVEN<br>$0</button>
+  </div>
+  <p class="notice">Only record a trade after it has closed. Each tap records one completed trade.</p>
+  <div class="status" id="tradeStatus" aria-live="polite"></div>
 </section>
 
-<section class="panel">
- <div class="actions" style="justify-content:space-between;align-items:center">
-  <h2>Trade history</h2>
-  <button class="secondary" id="export">Export CSV</button>
- </div>
- <div id="history"><p>No records yet.</p></div>
- <button class="danger" id="clear">Clear all records</button>
- <p><small>Your records are saved in this browser on this device. Export CSV backups regularly. They do not automatically sync to another device.</small></p>
+<section class="section">
+  <h2>Daily Trading Limits</h2>
+  <div class="limits">
+    <div class="limit">
+      <small>PROFIT LIMIT</small>
+      <strong class="good">+$50</strong>
+    </div>
+    <div class="limit">
+      <small>LOSS LIMIT</small>
+      <strong class="bad">−$25</strong>
+    </div>
+    <div class="limit">
+      <small>RISK : REWARD</small>
+      <strong>1 : 2</strong>
+    </div>
+  </div>
+  <div class="stats" style="margin-top:12px">
+    <div class="stat">
+      <small>TODAY'S RESULT</small>
+      <strong id="dailyResult">$0</strong>
+    </div>
+    <div class="stat">
+      <small>TRADES TODAY</small>
+      <strong id="dailyTrades">0</strong>
+    </div>
+  </div>
+  <p class="notice" id="dailyStatus">Stay within your daily limits. Your overall challenge history will not reset each day.</p>
 </section>
-<footer><p style="text-align:center">Nimoni Trading Compass · Discipline before profit.</p></footer>
-</main>
+
+<section class="section">
+  <h2>Trading Checklist</h2>
+
+  <div class="check-group">
+    <div class="check-title">4H — Market Direction</div>
+    <div class="choice-row">
+      <button class="green-choice" data-group="direction" onclick="choose('direction','Bullish',this)">Bullish</button>
+      <button class="red-choice" data-group="direction" onclick="choose('direction','Bearish',this)">Bearish</button>
+    </div>
+  </div>
+
+  <div class="check-group">
+    <div class="check-title">1H — Point of Interest (POI)</div>
+    <div class="choice-row">
+      <button class="blue-choice" data-group="poi" onclick="choose('poi','FVG',this)">FVG</button>
+      <button class="blue-choice" data-group="poi" onclick="choose('poi','Breaker Block',this)">Breaker Block</button>
+      <button class="blue-choice" data-group="poi" onclick="choose('poi','Order Block',this)">Order Block</button>
+    </div>
+  </div>
+
+  <div class="check-group">
+    <div class="check-title">15M — Confirmation</div>
+    <div class="choice-row">
+      <button class="green-choice" data-group="confirmation" onclick="choose('confirmation','Yes',this)">Yes</button>
+      <button class="red-choice" data-group="confirmation" onclick="choose('confirmation','No',this)">No</button>
+    </div>
+  </div>
+  <p class="notice">Use this checklist before entering a trade.</p>
+</section>
+
+<section class="section">
+  <h2>Trading History</h2>
+  <div class="stats">
+    <div class="stat"><small>WINS</small><strong class="good" id="wins">0</strong></div>
+    <div class="stat"><small>LOSSES</small><strong class="bad" id="losses">0</strong></div>
+    <div class="stat"><small>BREAKEVEN</small><strong id="breakevens">0</strong></div>
+    <div class="stat"><small>TOTAL TRADES</small><strong id="totalTrades">0</strong></div>
+  </div>
+  <div id="history" style="margin-top:12px">
+    <div class="empty">Your completed trades will appear here.</div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Account Settings</h2>
+  <label class="settings-label" for="startBalance">Starting balance</label>
+  <input id="startBalance" type="number" step="0.01" value="4988">
+  <label class="settings-label" for="phase1Target">Phase 1 target</label>
+  <input id="phase1Target" type="number" step="0.01" value="5400">
+  <label class="settings-label" for="phase2Target">Phase 2 target (editable placeholder)</label>
+  <input id="phase2Target" type="number" step="0.01" value="5800">
+  <button onclick="saveSettings()">Save account settings</button>
+  <p class="notice">The Phase 2 figure is a placeholder. Change it to your firm's actual target. Changing the starting balance does not erase your trade history.</p>
+</section>
+
+<div class="reminder">
+  <strong>ONE TRADE AT A TIME.</strong><br>
+  No revenge trading. No chasing targets.<br>
+  Record the result and walk away according to your daily rules.
+</div>
+
+</div>
 
 <script>
-const $=id=>document.getElementById(id);
-const KEY="nimoniCompassV1";
-const defaults={
- settings:{1:{start:4988,target:5400},2:{start:5400,target:5800}},
- limits:{win:50,loss:25},
- records:[]
+const STORAGE_KEY = "nimoni-discipline-tracker-v1";
+
+const defaults = {
+  balance:4988,
+  startBalance:4988,
+  phase:1,
+  targets:{1:5400,2:5800},
+  trades:[],
+  theme:"dark",
+  checklist:{direction:"",poi:"",confirmation:""}
 };
+
 let data;
-try{
- data=JSON.parse(localStorage.getItem(KEY))||JSON.parse(JSON.stringify(defaults));
- if(!data.settings||!data.records||!data.limits)throw Error();
-}catch(e){data=JSON.parse(JSON.stringify(defaults))}
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
-function money(n){return (n<0?"-":"")+"$"+Math.abs(n).toFixed(2)}
-function phase(){return $("phase").value}
-function records(){return data.records.filter(r=>r.phase===phase())}
-function netTotal(list){return list.reduce((s,r)=>s+Number(r.result||0),0)}
-function refresh(){
- const p=phase(),s=data.settings[p],list=records();
- const net=netTotal(list),balance=Number(s.start)+net;
- const distance=Number(s.target)-Number(s.start);
- const progress=distance>0?Math.max(0,Math.min(100,net/distance*100)):0;
- $("start").value=s.start;$("target").value=s.target;
- $("balance").textContent=money(balance);
- $("net").textContent=money(net);
- $("net").className=net>=0?"positive":"negative";
- $("remaining").textContent=money(Math.max(0,Number(s.target)-balance));
- $("percent").textContent=progress.toFixed(1)+"%";
- $("bar").style.width=progress+"%";
- $("progressText").textContent=balance>=s.target?"Target reached. Review your firm's rules before proceeding.":"Progress toward your phase target";
- const count=o=>list.filter(r=>r.outcome===o).length;
- const w=count("WIN"),l=count("LOSS");
- $("wins").textContent=w;$("losses").textContent=l;
- $("bes").textContent=count("BREAKEVEN");
- $("noTrades").textContent=count("NO TRADE");
- $("winRate").textContent=(w+l)?Math.round(w/(w+l)*100)+"%":"0%";
- dailyCheck();renderHistory();
+try {
+  data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(defaults);
+} catch (e) {
+  data = JSON.parse(JSON.stringify(defaults));
 }
-function dailyCheck(){
- const today=new Date().toLocaleDateString("en-CA");
- const daily=records().filter(r=>r.date===today).reduce((s,r)=>s+Number(r.result||0),0);
- const w=Number(data.limits.win),l=Number(data.limits.loss);
- $("winLimit").value=w;$("lossLimit").value=l;
- $("dailyWin").textContent=money(w);$("dailyLoss").textContent="-"+money(l);
- if(daily>=w)$("dailyStatus").textContent="Daily profit limit reached. Stop trading today.";
- else if(daily<=-l)$("dailyStatus").textContent="Daily loss limit reached. Stop trading today.";
- else $("dailyStatus").textContent="Today's recorded P/L: "+money(daily)+". Stay disciplined.";
+
+function save() {
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
-function escapeHTML(v){
- return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function money(value) {
+  return "$" + Number(value).toLocaleString("en-US",{
+    minimumFractionDigits:2,maximumFractionDigits:2
+  });
 }
-function renderHistory(){
- const list=records().slice().reverse();
- if(!list.length){$("history").innerHTML="<p>No records yet.</p>";return}
- $("history").innerHTML=list.map(r=>`
-  <div class="trade">
-   <div>
-    <strong>${escapeHTML(r.instrument||"No instrument")} · ${escapeHTML(r.outcome)}</strong>
-    <div class="muted">${escapeHTML(r.date)} · ${escapeHTML(r.direction)} · ${escapeHTML(r.setup)}</div>
-    <small>${escapeHTML(r.notes)}</small>
-   </div>
-   <div style="text-align:right">
-    <strong class="${r.result>0?"positive":r.result<0?"negative":""}">${money(Number(r.result||0))}</strong>
-    <br><button class="danger" style="padding:6px;margin-top:7px" data-delete="${escapeHTML(r.id)}">Delete</button>
-   </div>
-  </div>`).join("");
- document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{
-  if(confirm("Delete this record?")){
-   data.records=data.records.filter(r=>r.id!==b.dataset.delete);
-   save();refresh();
+
+function localDateKey(date) {
+  return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
+}
+
+function todaysTrades() {
+  const today = localDateKey(new Date());
+  return data.trades.filter(t => localDateKey(new Date(t.time)) === today);
+}
+
+function dailyTotal() {
+  return todaysTrades().reduce((sum,t)=>sum+t.amount,0);
+}
+
+function setTheme(theme) {
+  data.theme = theme;
+  applyTheme();
+  save();
+}
+
+function applyTheme() {
+  const systemLight = window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: light)").matches;
+  document.body.classList.toggle("light",
+    data.theme === "light" || (data.theme === "system" && systemLight));
+  ["dark","light","system"].forEach(name=>{
+    document.getElementById(name+"Btn").classList.toggle("selected",data.theme===name);
+  });
+}
+
+function setPhase(phase) {
+  data.phase = phase;
+  save();
+  render();
+}
+
+function render() {
+  applyTheme();
+
+  const target = Number(data.targets[data.phase]);
+  const balance = Number(data.balance);
+  const remaining = Math.max(0,target-balance);
+  const progress = target > data.startBalance
+    ? Math.max(0,Math.min(100,((balance-data.startBalance)/(target-data.startBalance))*100))
+    : 0;
+
+  document.getElementById("balance").textContent = money(balance);
+  document.getElementById("target").textContent = money(target);
+  document.getElementById("remaining").textContent = money(remaining);
+  document.getElementById("progressFill").style.width = progress+"%";
+  document.getElementById("progressText").textContent =
+    progress.toFixed(1)+"% completed";
+  document.getElementById("phaseNote").textContent =
+    data.phase===1 ? "Phase 1 target: "+money(target)+"."
+    : "Phase 2 target: "+money(target)+" (editable placeholder).";
+
+  document.getElementById("phase1Btn").classList.toggle("selected",data.phase===1);
+  document.getElementById("phase2Btn").classList.toggle("selected",data.phase===2);
+
+  document.getElementById("startBalance").value=data.startBalance;
+  document.getElementById("phase1Target").value=data.targets[1];
+  document.getElementById("phase2Target").value=data.targets[2];
+
+  const wins=data.trades.filter(t=>t.type==="WIN").length;
+  const losses=data.trades.filter(t=>t.type==="LOSS").length;
+  const bes=data.trades.filter(t=>t.type==="BREAKEVEN").length;
+
+  document.getElementById("wins").textContent=wins;
+  document.getElementById("losses").textContent=losses;
+  document.getElementById("breakevens").textContent=bes;
+  document.getElementById("totalTrades").textContent=data.trades.length;
+
+  const todayTrades=todaysTrades();
+  const todayTotal=dailyTotal();
+  document.getElementById("dailyResult").textContent =
+    (todayTotal>0?"+":"")+money(todayTotal);
+  document.getElementById("dailyTrades").textContent=todayTrades.length;
+
+  const limitReached=todayTotal>=50 || todayTotal<=-25;
+  document.getElementById("dailyStatus").textContent =
+    todayTotal>=50 ? "Daily profit limit reached. Stop trading for today."
+    : todayTotal<=-25 ? "Daily loss limit reached. Stop trading for today."
+    : "You have "+money(50-todayTotal)+" until the profit limit and "+
+      money(todayTotal+25)+" until the loss limit.";
+
+  document.querySelectorAll(".trade-buttons button").forEach(btn=>{
+    btn.disabled=limitReached;
+  });
+
+  document.getElementById("tradeStatus").textContent=limitReached
+    ? "Your daily limit has been reached. Your challenge history remains saved."
+    : "Daily limits are still available.";
+
+  renderHistory();
+  renderChecklist();
+}
+
+function recordTrade(type) {
+  const todayTotal=dailyTotal();
+  if(todayTotal>=50 || todayTotal<=-25) {
+    alert("Your daily trading limit has been reached. Stop trading for today.");
+    return;
   }
- });
+
+  const amount=type==="WIN"?50:type==="LOSS"?-25:0;
+  if(todayTotal+amount>50 || todayTotal+amount< -25) {
+    alert("This result would exceed your daily limit.");
+    return;
+  }
+
+  const trade={
+    id:Date.now()+"-"+Math.random().toString(16).slice(2),
+    type:type,
+    amount:amount,
+    time:new Date().toISOString()
+  };
+
+  data.trades.unshift(trade);
+  data.balance=Number(data.balance)+amount;
+  save();
+  render();
 }
-$("phase").onchange=refresh;
-$("saveSettings").onclick=()=>{
- const start=Number($("start").value),target=Number($("target").value);
- if(!Number.isFinite(start)||!Number.isFinite(target)||target<=start){
-  alert("Target must be greater than starting balance.");return;
- }
- data.settings[phase()]={start,target};save();refresh();
-};
-$("saveLimits").onclick=()=>{
- const win=Number($("winLimit").value),loss=Number($("lossLimit").value);
- if(win<=0||loss<=0){alert("Limits must be greater than zero.");return}
- data.limits={win,loss};save();dailyCheck();
-};
-$("addTrade").onclick=()=>{
- const outcome=$("outcome").value;
- const result=Number($("result").value||0);
- if(outcome==="WIN"&&result<=0){alert("Enter a positive amount for a WIN.");return}
- if(outcome==="LOSS"&&result>=0){alert("Enter a negative amount for a LOSS.");return}
- if((outcome==="BREAKEVEN"||outcome==="NO TRADE")&&result!==0){
-  alert("Breakeven and No Trade must have a zero result.");return;
- }
- const record={
-  id:String(Date.now())+Math.random().toString(16).slice(2),
-  phase:phase(),
-  date:$("date").value||new Date().toLocaleDateString("en-CA"),
-  instrument:$("instrument").value,
-  direction:$("direction").value,
-  outcome,result,
-  risk:$("risk").value,
-  entry:$("entry").value,
-  sl:$("sl").value,
-  tp:$("tp").value,
-  bias:$("bias").value,
-  setup:$("setup").value,
-  confirmation:$("confirmation").value,
-  notes:$("notes").value
- };
- data.records.push(record);save();
- ["instrument","result","risk","entry","sl","tp","setup","confirmation","notes"].forEach(id=>$(id).value="");
- $("formMessage").textContent="Trading record saved.";
- refresh();
-};
-function checklist(){
- const boxes=[...document.querySelectorAll(".checks input")];
- const done=boxes.filter(b=>b.checked).length;
- $("checkBar").style.width=(done/boxes.length*100)+"%";
- $("checkScore").textContent=done+" of "+boxes.length+" completed";
- $("checkMessage").textContent=done===boxes.length?"Checklist complete. Make sure your risk is acceptable.":done===0?"No confirmation, no trade.":"Keep checking your setup. Do not rush.";
+
+function renderHistory() {
+  const box=document.getElementById("history");
+  if(!data.trades.length) {
+    box.innerHTML='<div class="empty">Your completed trades will appear here.</div>';
+    return;
+  }
+
+  box.innerHTML="";
+  data.trades.slice(0,50).forEach(t=>{
+    const item=document.createElement("div");
+    item.className="history-item";
+
+    const left=document.createElement("div");
+    const name=document.createElement("strong");
+    name.textContent=t.type;
+    const date=document.createElement("small");
+    date.textContent=new Date(t.time).toLocaleString();
+    left.append(name,date);
+
+    const right=document.createElement("strong");
+    right.textContent=(t.amount>0?"+":"")+money(t.amount);
+    right.className=t.amount>0?"good":t.amount<0?"bad":"";
+
+    item.append(left,right);
+    box.append(item);
+  });
 }
-document.querySelectorAll(".checks input").forEach(b=>b.onchange=checklist);
-$("resetChecks").onclick=()=>{
- document.querySelectorAll(".checks input").forEach(b=>b.checked=false);
- checklist();
-};
-$("export").onclick=()=>{
- const fields=["date","phase","instrument","direction","outcome","result","risk","entry","sl","tp","bias","setup","confirmation","notes"];
- const quote=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
- const csv=[fields.join(","),...data.records.map(r=>fields.map(f=>quote(r[f])).join(","))].join("\n");
- const blob=new Blob([csv],{type:"text/csv"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;a.download="nimoni-trading-records.csv";a.click();
- URL.revokeObjectURL(url);
-};
-$("clear").onclick=()=>{
- if(confirm("Delete ALL your saved trading records? This cannot be undone.")){
-  data.records=[];save();refresh();
- }
-};
-$("date").value=new Date().toLocaleDateString("en-CA");
-checklist();refresh();
+
+function choose(group,value,button) {
+  data.checklist[group]=value;
+  document.querySelectorAll('[data-group="'+group+'"]').forEach(btn=>{
+    btn.classList.toggle("selected",btn===button);
+  });
+  save();
+}
+
+function renderChecklist() {
+  document.querySelectorAll("[data-group]").forEach(btn=>{
+    const group=btn.dataset.group;
+    btn.classList.toggle("selected",data.checklist[group]===btn.textContent);
+  });
+}
+
+function saveSettings() {
+  const start=Number(document.getElementById("startBalance").value);
+  const p1=Number(document.getElementById("phase1Target").value);
+  const p2=Number(document.getElementById("phase2Target").value);
+
+  if(!Number.isFinite(start)||!Number.isFinite(p1)||!Number.isFinite(p2)||
+     start<=0||p1<=0||p2<=0) {
+    alert("Please enter valid positive account amounts.");
+    return;
+  }
+
+  const oldStart=Number(data.startBalance);
+  const difference=start-oldStart;
+  data.balance=Number(data.balance)+difference;
+  data.startBalance=start;
+  data.targets[1]=p1;
+  data.targets[2]=p2;
+  save();
+  render();
+  alert("Account settings saved.");
+}
+
+if(window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{
+    if(data.theme==="system") applyTheme();
+  });
+}
+
+render();
 </script>
 </body>
-  </html>
-                     
+ </html>
+ 
